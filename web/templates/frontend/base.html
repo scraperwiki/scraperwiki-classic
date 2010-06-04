@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+	<head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.3.2.js"></script>
+		{% if has_map %}
+	            <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>                                        
+                <script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>                                      		                                
+		{% endif %}
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.7.2.custom.min.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.easing.compatibility.js"></script>		
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.cycle.all.min.js"></script>	
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/flexigrid.js"></script>			
+		<script type="text/javascript" src="{{ MEDIA_URL }}CodeMirror/js/codemirror.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/scraperwiki.js"></script>		
+	    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/flexigrid.css" />
+	    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/main.css" />
+	    {% block css %}{% endblock %}
+	    {% block rss %}{% endblock %}
+	    {% block javascript %}{% endblock %}
+	    <title>{% block title %}{% endblock %} | ScraperWiki</title>
+	</head>
+	<body{% if grey_body %} class="bold_body"{% endif %}>
+	    <div class="banner">
+	        <ul class="user_menu">
+                {% if npeople %}
+                  <li><small>{{ npeople }} people at work</small></li>
+                {% endif %}
+				{% if user.is_authenticated %}
+				  <li>signed in as <a href="{% url profiles_profile_detail user.username %}">{{user.get_profile.name}}</a></li>
+				  <li><a href="{% url my_scrapers %}">{{ user.scraper_set.owned_count }}
+				     {% ifnotequal user.scraper_set.owned_count 1 %}
+				        scrapers
+				     {% else %}
+				        scraper
+				     {% endifnotequal %}</a>
+				     <!--
+				     {% ifnotequal user.scraper_set.owned_count 0 %}
+				        ({{user.scraper_set.owned_good_count}}) OK
+				     {% endifnotequal %}
+				     -->
+				 </li>
+				 <li><a href="{% url logout %}?next_page=/">sign out</a></li>
+				{% else %}
+					<li><a href="{% url login %}?next=/">Sign in or create an account</a></li>
+				{% endif %}
+				<li class="helplink"><a href="{% url help %}">Help</a></li>
+			</ul>
+			<p>
+    	        Hello! This is the beta version of ScraperWiki, 
+                <span id="feedbackmess">please <a href="{% url contact_form %}">tell us what you think</a></span>.
+            </p>
+	    </div>
+
+	    {# Header #}
+	    <div id="divHeader">
+                
+                <div id="divLogo">
+                    {% if not hide_logo %}
+    					<p>
+    					    <a href="{% url frontpage %}"><span class="hide">ScraperWiki</span></a>
+    				    </p>
+				    {% endif %}
+				</div>
+			
+			<div id="divMenu">
+			    <ul class="main_menu">
+				    <li>
+				        <a href="{% url editor %}" title="Create a new screen scraper">Create a scraper</a>
+				    </li>
+				    <li>
+				        <a href="{% url scraper_list %}" title="Browse scrapers and data">Browse data</a>
+				    </li>
+				    <li>
+				        <a href="{% url market_solicitation %}" title="Request a new scraper">Request data</a>
+				    </li>
+				    <li class="last">
+				        <a href="{% url api:index %}" title="ScraperWiki API">API</a>
+				    </li>
+				</ul>
+
+			</div>
+			<div id="divInfo">
+		        {% if info_messages %}
+                     <ul>
+                         {% for info in info_messages %}
+                             <li>{{ info|escape }}</li>
+                         {% endfor %}
+                     </ul>
+                 {% endif %}
+                 {% if notifications %}
+                 <ul>
+		     
+                     {% for message in notifications %}
+                 	{% if forloop.first %} {% comment %} Just get the first notification - otherwise login message displays twice, strange bug {% endcomment %}
+                        <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endif %}
+                     {% endfor %}
+                 </ul>
+                 {% endif %}
+    		</div>
+		    <div id="divErrors">
+		        {% if error_messages %}
+                     <ul>
+                         {% for error in error_messages %}
+                             <li>{{ error|escape }}</li>
+                         {% endfor %}
+                     </ul>
+                 {% endif %}
+    		    {% block errors %}
+		            
+    		    {% endblock %}		    
+    		</div>
+	    </div>
+	    {% block above_page %}{% endblock %}		    
+		<div id="divPage">
+		    <div id="divContent">
+          
+  		    {% block content %}{% endblock %}
+		    </div>
+		</div>			
+		{% block footer %}
+			<div id="divFooter">
+		       <dl>
+		           <dt>About</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url about %}">About ScraperWiki</a></li>
+		                 <li><a href="http://blog.scraperwiki.com">Blog</a></li>
+		                 <li><a href="{% url terms %}">Terms &amp; conditions</a></li>
+		                 <li><a href="{% url privacy %}">Privacy policy</a></li>
+		             </ul>
+		            </dd>
+		           <dt>Data</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url scraper_list %}">Browse data &amp; scrapers</a></li>
+		                 <li><a href="{% url market_list %}">Request a dataset</a></li>		                 
+		                 <li><a href="{% url editor %}">Create a scraper</a></li>		                 		                 
+		                 <li><a href="{% url api:index %}">API</a></li>
+		             </ul>
+		           </dd>
+		           <!--<dt>Reuse the data</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url api:index %}">API</a></li>
+		                 <li><a href="{% url api:libraries %}">Code libraries</a></li>			                 
+		             </ul>
+		            </dd>-->
+		           <dt>Help &amp; support</dt>
+		           <dd>
+		             <ul>
+			                 <li><a href="{% url contact_form %}">Contact us</a></li>
+			                 <li><a href="{% url help %}">FAQ</a></li>	
+			                 <li><a href="{% url whitelist_user %}">Whitelist</a></li>	
+			                 <li><a href="{% url help_code_documentation %}">Code documentation</a></li>			                 
+			                 <li><a href="http://groups.google.com/group/scraperwiki">Developers' discussion group</a></li>			                   			                 
+			             </ul>
+		           </dd>
+		       </dl>
+                <a id="a4IP" href="http://www.4ip.org.uk">
+			        <img src="{{ MEDIA_URL }}images/4ip.png" title="Supported by 4iP Logo" alt="4iP" height="85" width="100"/>
+			    </a>
+				<div id="divCopyright">
+				        &copy; ScraperWiki Ltd
+				</div>
+			</div>
+		{% endblock %}
+		
+	    <script type="text/javascript" defer="defer">
+	        {% block run_script %}{% endblock %}
+        </script>
+        {% if not debug %}
+            <script type="text/javascript">
+                var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+                document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+            </script>
+            <script type="text/javascript">
+                try {
+                    var pageTracker = _gat._getTracker("UA-321882-15");
+                    pageTracker._trackPageview();
+                } catch(err) {}
+            </script>
+        {% endif %}
+	</body>
+</html>

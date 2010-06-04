@@ -1,0 +1,55 @@
+{% extends "frontend/base.html" %}
+
+{% load gravatar %}
+{% block css %}{% endblock %}
+{% block title %}Profile Details: {{ profile.name }}{% endblock %}
+
+{% block content %}
+
+    <div class="page_title">
+		<h1>{{ profile.name }}'s profile</h1>
+		{% show_gravatar profile.user 'large' %} 
+		<p>{{ profile.bio }}</p>
+	</div>
+	
+	<div class="content"> 
+		 {% ifequal profile.user.username user.username %}
+	     <a href="/profiles/edit/">Edit your profile</a>
+
+{% comment %} [APS: remove following/watching features for now]
+         {% else  %}
+
+			{% if user.is_authenticated %}
+			  <form method="post" action="">
+			  {% if following %}
+			   You are following {{ profile.user.username}} <input type="submit" value="Unfollow" />
+     	      {% else%}
+			   <input type="submit" value="Follow {{ profile.user.username}}" />
+     	      {% endif %} 
+               </form>
+     	    {% endif %} 
+{% endcomment %}
+
+        {% endifequal %}
+	</div>
+		
+	<div class="content">
+    	{%  if owned_scrapers %}
+	        <h2>{{ profile.name }}'s published scrapers</h2>    	
+    	    <ul>	        
+                {% for scraper in owned_scrapers %}
+            	    {% include 'frontend/scraper_line.html' %}
+            	{% endfor %}
+	        </ul> 	            	
+         {% endif %}
+         {%  if solicitations %}
+ 	        <h2>{{ profile.name }}'s requests for datasets</h2>    	
+     	    <ul>	        
+                {% for solicitation in solicitations %}
+                    <li><a href="{% url market_view solicitation.id %}">{{solicitation.title}}</a>{% if solicitation.has_bounty %} <span class="bounty"><a href="{% url market_view solicitation.id %}">&pound;{{solicitation.price}} bounty</a></span>{% endif %}</li>
+             	{% endfor %}
+ 	        </ul> 	            	
+          {% endif %}
+    </div>
+    
+    {% endblock %}
