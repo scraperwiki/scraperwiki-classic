@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.3.2.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.7.2.custom.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.easing.compatibility.js"></script>		
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.cycle.all.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.jeditable.js"></script>		
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.simplemodal.1.4.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/flexigrid.js"></script>			
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/scraperwiki.js?{{settings.REVISION}}"></script>		
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/language-choice.js?{{settings.REVISION}}"></script>		
+    {% block javascript %}{% endblock %}
+
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/flexigrid.css" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/main.css?{{settings.REVISION}}" />
+    {% block css %}{% endblock %}   
+
+    {% block rss %}{% endblock %}
+
+    <title>{% block title %}{% endblock %} | ScraperWiki</title>
+
+    {% if not debug %}
+        <script type="text/javascript">
+
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-21451224-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+
+        </script>
+    {% endif %}
+</head>
+
+	<body>
+	    <div class="banner">
+	        <ul class="user_menu">
+				{% if user.is_authenticated %}
+				  <li>signed in as <a href="{% url profiles_profile_detail user.username %}">{% if user.get_profile.name %}{{user.get_profile.name}}{% else %}{{user.username}}{% endif %}</a></li>
+				  {% comment %}
+				  <li><a href="{% url dashboard %}">{{ user.code_set.owned_count }}
+				     {% ifnotequal user.scraper_set.owned_count 1 %}
+				        scrapers
+				     {% else %}
+				        scraper
+				     {% endifnotequal %}</a>
+				     <!--
+				     {% ifnotequal user.scraper_set.owned_count 0 %}
+				        ({{user.scraper_set.owned_good_count}}) OK
+				     {% endifnotequal %}
+				     -->
+				 </li>
+				 {% endcomment %}
+				 <li><a href="{% url logout %}?next_page=/">sign out</a></li>
+				{% else %}
+					<li><a href="{% url login %}?next=/">Sign in or create an account</a></li>
+				{% endif %}
+				<li class="helplink"><a href="{% url help %}">Help</a></li>
+ 			</ul>
+			<p>{{site_message}}</p>
+	    </div>
+
+    {# Header #}
+    <div id="divHeader">
+       <div id="divLogo">
+          <p><a href="{% url frontpage %}"><span class="hide">ScraperWiki</span></a></p>
+       </div>
+       <div id="divMenu">
+          <ul class="main_menu">
+            <li><a href="{% url dashboard %}" title="Manage your scrapers" class="dashboard">Your dashboard</a></li>
+            <li><a href="{% url choose_template 'scraper' %}" title="Create a new screen scraper" class="editor_scraper">New scraper</a></li>
+            {% if user.is_staff %}
+              <li class="staff"><a href="{% url choose_template 'view' %}" title="Create a new view" class="editor_view">New view</a></li>
+            {% endif %}
+            <li><a href="{% url scraper_list %}scrapers" title="Browse all scrapers">Browse scrapers</a></li>
+            <li><a href="{% url get_involved %}" title="Get involved">Get involved!</a></li>
+            {% if settings.ENABLE_MARKETPLACE %}
+                <li><a href="{% url market_list %}">Request a dataset</a></li>
+            {% else %}
+                <li><a href="{% url contact_form %}">Request a dataset</a></li>
+            {% endif %}
+            <li><a href="{% url help 'tutorials' 'python' %}" title="Help">Tutorials</a></li>
+            <li><a href="{% url help %}" title="Help">FAQ</a></li>
+            {% if user.is_staff %}
+              <li class="staff"><a href="{% url running_scrapers %}" title="Interact with current UML status">UML status</a></li>
+            {% endif %}
+            <li class="last"><a href="{% url api:index %}" title="ScraperWiki API">API</a></li>
+          </ul>
+
+          <form id="divSidebarSearch" action="/search/" method="post">
+            <input type="text" id="q" name="q"/>
+            <input type="submit" value="Go" />
+          </form>
+
+          <ul class="sub_menu">
+             <li><a href="{% url about %}" title="About ScraperWiki">About ScraperWiki</a></li>
+             <li><a href="http://blog.scraperwiki.com" title="ScraperWiki Data Blog">Read our blog</a></li>
+             <li><a href="{% url contact_form %}" title="Feedback form">Feedback</a></li>
+             <li><a href="http://groups.google.com/group/scraperwiki" title="Google groups">Email list</a></li>
+             <li><a href="http://twitter.com/scraperwiki" title="Follow us on Twitter">Twitter</a></li>
+             <li><a href="https://www.facebook.com/pages/ScraperWiki/195413557138197" title="Like us on Facebook">Facebook</a></li>
+          </ul>
+        </div>
+     </div>
+
+	    {% block above_page %}{% endblock %}		    
+
+		<div id="divPage">
+		    <div id="divInfo">
+		        {% if info_messages %}
+                     <ul>
+                         {% for info in info_messages %}
+                             <li>{{ info|escape }}</li>
+                         {% endfor %}
+                     </ul>
+                 {% endif %}
+                 {% if notifications %}
+                 <ul>
+                     {% for message in notifications %}
+                 	{% if forloop.first %} {% comment %} Just get the first notification - otherwise login message displays twice, strange bug {% endcomment %}
+                        <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endif %}
+                     {% endfor %}
+                 </ul>
+                 {% endif %}
+                 {% block info %}
+
+       		     {% endblock %}
+    		</div>
+		    <div id="divErrors">
+		        {% if error_messages %}
+                     <ul>
+                         {% for error in error_messages %}
+                             <li>{{ error|escape }}</li>
+                         {% endfor %}
+                     </ul>
+                 {% endif %}
+    		    {% block errors %}
+		            
+    		    {% endblock %}		    
+    		</div>
+    		
+    		<div class="page_tabs">
+                {% block tabs %}{% endblock %}
+            </div>
+            
+		    <div id="divContent">
+  		        {% block content %}{% endblock %}
+  		        <br class="clear"/>
+		    </div>
+		</div>			
+		{% block footer %}
+			<div id="divFooter">
+		       <dl>
+		           <dt>About</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url about %}">About ScraperWiki</a></li>
+		                 <li><a href="http://blog.scraperwiki.com">Blog</a></li>
+		                 <li><a href="{% url terms %}">Terms &amp; conditions</a></li>
+		                 <li><a href="{% url privacy %}">Privacy policy</a></li>
+		             </ul>
+		            </dd>
+		           <dt>Data</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url scraper_list %}">Browse data &amp; scrapers</a></li>
+                         {% if settings.ENABLE_MARKETPLACE %}
+		                 <li><a href="{% url market_list %}">Request a dataset</a></li>
+                         {% else %}
+		                 <li><a href="{% url contact_form %}">Request a dataset</a></li>
+                         {% endif %}
+                         <li><a href="#" class="editor_scraper">Create a scraper</a></li>
+                         <li><a href="#" class="editor_view">Create a view</a></li>		                 
+		                 <li><a href="{% url api:index %}">API</a></li>
+		             </ul>
+		           </dd>
+		           <!--<dt>Reuse the data</dt>
+		           <dd>
+		             <ul>
+		                 <li><a href="{% url api:index %}">API</a></li>
+		                 <li><a href="{% url api:libraries %}">Code libraries</a></li>			                 
+		             </ul>
+		            </dd>-->
+		           <dt>Help &amp; support</dt>
+		           <dd>
+		             <ul>
+			                 <li><a href="{% url contact_form %}">Contact us</a></li>
+			{% if language %}
+			                 <li><a href="{% url help 'faq' language %}">FAQ</a></li>	
+			{% else %}
+			                 <li><a href="{% url help 'faq' 'python' %}">FAQ</a></li>				
+			{% endif %}
+			                 <li><a href="{% url whitelist_user %}">Whitelist</a></li>	
+			{% if language %}			
+			                 <li><a href="{% url help 'documentation' language %}">Code documentation</a></li>			                 
+			{% else %}
+			                 <li><a href="{% url help 'documentation' 'python' %}">Code documentation</a></li>			                 			
+			{% endif %}			
+			                 <li><a href="http://groups.google.com/group/scraperwiki">Developers' discussion group</a></li>			                   			                 
+			             </ul>
+		           </dd>
+		       </dl>
+				<div id="divCopyright">
+				        &copy; ScraperWiki Ltd
+				</div>
+			</div>
+		{% endblock %}
+		
+<script type="text/javascript" defer="defer">
+  {% block run_script %}{% endblock %}
+</script>
+  {% block run_script_outer %}{% endblock %} {# allows us to use script tag and get syntax highlighting in the editor #}
+
+	</body>
+</html>
