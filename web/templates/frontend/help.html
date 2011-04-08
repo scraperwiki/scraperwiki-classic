@@ -1,0 +1,52 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}Help{% endblock %}
+{% block tabs %}
+        <ul>
+            <li{% ifequal mode "libraries" %} class="selected"{% endifequal %}> 
+                <a id="libraries" href="{% url help 'libraries' language|default:"python" %}">Libraries</a> 
+            </li>
+            <li{% ifequal mode "api" %} class="selected"{% endifequal %}> 
+                <a href="{% url api:index_1_0 %}">API</a>
+            </li>
+            <li{% ifequal mode "documentation" %} class="selected"{% endifequal %}> 
+                <a id="reference" href="{% url help 'documentation' language|default:"python" %}">Documentation</a> 
+            </li>
+            <li{% ifequal mode "faq" %} class="selected"{% endifequal %}> 
+                <a id="faq" href="{% url help 'faq' language|default:"python" %}">FAQ</a> 
+            </li>
+            <li{% ifequal mode "tutorials" %} class="selected"{% endifequal %}> 
+                <a id="tutorials" href="{% url help 'tutorials' language|default:"python" %}">Examples</a> 
+            </li>
+        </ul> 
+{% endblock %}
+
+{% block content %}
+    <div class="page_title">
+        {% ifnotequal mode "faq" %}
+         <p style="float:right; margin:0">See also for
+         {% for other_language, display_other_language in other_languages %}
+         {% if not forloop.first %} or {% endif %}
+         <strong class="language {{other_language}}"><a href="{% url help mode other_language %}">{{display_other_language}}</a></strong>{% endfor %}.
+         </p>
+          {% ifequal mode 'tutorials' %}
+            <h1>{{'examples'|capfirst}} - {{display_language}}</h1>
+          {% else %}
+            <h1>{{mode|capfirst}} - {{display_language}}</h1>
+          {% endifequal %}
+        {% else %}
+          <h1>Help - {{mode|capfirst}}</h1>
+        {% endifnotequal %}
+        {% ifequal mode "tutorials" %}
+          <p>Quick and easy examples just to get you started.  Click on one and click "Run" to try it out.
+          You can start editing without any logging in!</p>
+        {% endifequal %}
+    </div>
+    <div class="content">
+
+    <div id="Dhelp_content">
+    {% include include_tag %}
+    </div>
+
+    </div>
+{% endblock %}
