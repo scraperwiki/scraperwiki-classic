@@ -1,0 +1,55 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}{% if scraper.owner.get_profile.name %}{{scraper.owner.get_profile.name}}{% else %}{{scraper.owner.username}}{% endif %} / {{ scraper.title }}{% endblock %}
+{% block rss %}<link rel="alternate" type="application/rss+xml" title="RSS" href="/feeds/code_object_comments/{{ scraper.short_name }}" />{% endblock %}
+
+{% block header %}
+	<h2>
+      <a href="{% url profiles_profile_detail scraper.owner.username %}">
+        {% if scraper.owner %}
+          {% if scraper.owner.get_profile.name %}
+            {{scraper.owner.get_profile.name}}
+          {% else %}
+            {{scraper.owner.username}}
+          {% endif %}
+        {% endif %}
+       </a> / 
+       {% if user.is_authenticated %}
+         <span id="hCodeTitle" title="Click to edit&hellip;">{{ scraper.title }}</span> 
+         <a id="aEditTitle" title="Edit title">Edit title</a>
+       {% else %}
+         {{ scraper.title }}
+       {% endif %}
+    </h2>
+	<p>{{scraper.wiki_type|lower}} 
+	    &bull; {{scraper.language|lower}}
+        {% ifnotequal scraper.privacy_status 'public' %}
+	    &bull; [{{scraper.privacy_status}}]
+        {% endifnotequal %}
+	{% if scraper.forked_from %}
+        &bull; Fork of <a href="{% url code_overview scraper.forked_from.wiki_type scraper.forked_from.short_name %}">{{scraper.forked_from.short_name}}</a>
+    {% endif %}
+</p>
+{% endblock %}
+
+{% block tabs %}
+    {% include 'codewiki/includes/tabs.html' %}
+{% endblock %}
+{% block content %}
+    <input type="hidden" id="adminsettagurl" value="{% url scraper_admin_settags scraper.short_name %}"/>
+    <input type="hidden" id="adminprivacystatusurl" value="{% url scraper_admin_privacystatus scraper.short_name %}"/>
+    <input type="hidden" id="admincontroleditors" value="{% url scraper_admin_controleditors scraper.short_name %}"/>
+
+    <div class="content full">
+        <div class="page_tab_body">
+            {% block tab %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block run_script %}
+    {% if user.is_authenticated %}
+        setupScraperEditInPlace('{{scraper.wiki_type}}', '{{scraper.short_name}}');
+    {% endif %}
+{% endblock %}

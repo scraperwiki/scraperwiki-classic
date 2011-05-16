@@ -1,0 +1,156 @@
+[dispatcher]
+host	= 127.0.0.1
+port	= 9000
+umllist	= uml001
+confurl	= allwhite
+path    = ../scraperlibs
+use_queue = False
+queue_name= test_run_queue
+return_queue_name= test_queue_return
+
+[twister]
+statusurl = http://localhost:8000/scrapers/twister/status
+
+[webproxy]
+host	= 127.0.0.1
+port	= 9002
+dbhost  = localhost
+user    = scraperwiki
+passwd  = scraperwiki
+db      = scraperwiki_cache
+cache   = 127.0.0.1:11211
+
+[httpproxy]
+host	= 127.0.0.1
+port	= 9005 
+dbhost  = localhost
+user    = scraperwiki
+passwd  = scraperwiki
+db      = scraperwiki_cache
+cache   = 127.0.0.1:11211
+
+[httpsproxy]
+host	= 127.0.0.1
+port	= 9006
+dbhost  = localhost 
+user    = scraperwiki
+passwd  = scraperwiki
+db      = scraperwiki_cache
+cache   = 127.0.0.1:11211
+
+[ftpproxy]
+host	= 127.0.0.1
+port	= 9004
+
+[dataproxy]
+dbtype	= sqlite3
+host	= 127.0.0.1
+port	= 9003
+user	= scraperwiki
+passwd	= scraperwiki
+db	= scraperwiki_datastore
+resourcedir = ../resourcedir
+max_api_distance = 10
+secure	= 127.0.0.1
+
+
+; Francis's machine
+[bat.local]
+host	= 127.0.0.1
+tap	= 127.0.0.1
+eth	= 127.0.0.1
+port	= 9001
+via	= 9001
+mem	= 128M
+count	= 25
+
+[ubuntu]
+host	= 127.0.0.1
+tap	= 127.0.0.1
+eth	= 127.0.0.1
+port	= 9001
+via	= 9001
+mem	= 128M
+count	= 25
+
+[uml001]
+host	= 127.0.0.1
+tap	= 192.168.254.101
+eth	= 192.168.254.1
+port	= 9001
+via	= 9001
+mem	= 128M
+count	= 25
+
+
+
+[loggers]
+keys=root,dataproxy,controller
+
+[handlers]
+keys=consoleHandler,logfileHandlerDataproxyDebug,logfileHandlerDataproxyWarning,logfileHandlerDataproxyEmail,logfileHandlerControllerDebug,logfileHandlerControllerWarning
+
+[formatters]
+keys=simpleFormatter
+
+
+[logger_root]
+level=DEBUG
+handlers=consoleHandler
+
+[logger_dataproxy]
+level=DEBUG
+handlers=logfileHandlerDataproxyDebug,logfileHandlerDataproxyWarning
+qualname=dataproxy
+propagate=0
+
+[logger_controller]
+level=DEBUG
+handlers=logfileHandlerControllerDebug,logfileHandlerControllerWarning
+qualname=controller
+propagate=0
+
+[handler_consoleHandler]
+class=StreamHandler
+level=DEBUG
+formatter=simpleFormatter
+args=(sys.stdout,)
+
+
+[handler_logfileHandlerControllerDebug]
+class=handlers.RotatingFileHandler
+level=DEBUG
+formatter=simpleFormatter
+args=('/var/www/scraperwiki/uml/var/log/controller.log', "a", 100000, 5)
+
+[handler_logfileHandlerControllerWarning]
+class=handlers.RotatingFileHandler
+level=WARNING
+formatter=simpleFormatter
+args=('/var/www/scraperwiki/uml/var/log/controller.log-warn', "a", 100000, 5)
+
+
+
+[handler_logfileHandlerDataproxyDebug]
+class=handlers.RotatingFileHandler
+level=DEBUG
+formatter=simpleFormatter
+args=('/var/www/scraperwiki/uml/var/log/dataproxy.log', "a", 100000, 5)
+
+[handler_logfileHandlerDataproxyWarning]
+class=handlers.RotatingFileHandler
+level=WARNING
+formatter=simpleFormatter
+args=('/var/www/scraperwiki/uml/var/log/dataproxy.log-warn', "a", 100000, 5)
+
+[handler_logfileHandlerDataproxyEmail]
+class=handlers.SMTPHandler
+level=CRITICAL
+formatter=simpleFormatter
+args=(('localhost', 25,), 'server@scraperwiki.com', ['julian@scraperwiki.com'], 'ScraperWiki error in dataproxy')
+
+
+
+[formatter_simpleFormatter]
+format=%(asctime)s %(filename)s:%(lineno)s %(levelname)s: %(message)s
+
