@@ -62,17 +62,19 @@ class ScraperProxyFactory(http.HTTPFactory):
         protocol = ScraperProxy()
         return protocol
         
-        
-        
-if __name__ == '__main__':
-    from twisted.internet import reactor
+
+def get_parsed_arguments():        
+    """
+    Gets and processes the command line arguments to this process returning
+    the options object and args as a tuple.
+    """
     from optparse import OptionParser
     
     parser = OptionParser(usage=USAGE)
     parser.add_option("-u", "--uid", type='int', dest="uid",
                        help="Run as supplied uid")
     parser.add_option("-g", "--gid", type='int', dest="gid",
-                       help="Run as supplied gif")
+                       help="Run as supplied gid")
     parser.add_option("-v", "--varDir", dest="varDir",
                         help="Specify var directory")
     parser.add_option("-c", "--config", dest="config",
@@ -83,7 +85,14 @@ if __name__ == '__main__':
     parser.add_option("-a", "--allowAll", action="store_false", dest="allowAll", default=False,
                   help="Allow all urls")
     
-    (options, args) = parser.parse_args()
+    return parser.parse_args()
+        
+        
+        
+if __name__ == '__main__':
+    from twisted.internet import reactor
+
+    (options, args) = get_parsed_arguments()
 
     # Following only needed when not using twistd
     log.startLogging(sys.stdout)
@@ -111,10 +120,15 @@ if __name__ == '__main__':
         log.err(ioe, "Trying to read log file")
         sys.exit()
 
-    cache_hosts = config.get(varName, 'cache')
+    # Fix hard-coded name
+    cache_hosts = config.get('httpproxy', 'cache')
     if cache_hosts:
+        log.msg("Cache is at %s" % cache_hosts )    
         cache_client = memcache.Client( cache_hosts.split(',') )        
     
+    port = int( config.get('httpproxy', 'port') )
+    
+    log.msg("Starting server on port ", port)
     px = ScraperProxyFactory()
-    reactor.listenTCP(9000, px)
+    reactor.listenTCP( port, px)
     reactor.run()
