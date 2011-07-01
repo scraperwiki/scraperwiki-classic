@@ -127,8 +127,11 @@ if __name__ == '__main__':
         cache_client = memcache.Client( cache_hosts.split(',') )        
     
     port = int( config.get('httpproxy', 'port') )
+    # Don't believe we need both, the single proxy should be able to handle either
+    secure_port = int( config.get('httpsproxy', 'port') )
     
     log.msg("Starting server on port ", port)
     px = ScraperProxyFactory()
     reactor.listenTCP( port, px)
+    reactor.listenTCP( secure_port, px)    
     reactor.run()
