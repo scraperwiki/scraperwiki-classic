@@ -77,13 +77,14 @@ class ScraperProxyClient(proxy.ProxyClient):
     
     def handleHeader( self, key, value ):
 #        print self.father.scraperId, self.father.runId, self.father.cache
-#        self.buffer = self.buffer + '%s=%s\r\n' % (key,value,)
+        self.buffer = self.buffer + '%s=%s\r\n' % (key,value,)
         proxy.ProxyClient.handleHeader(self, key, value)
         
     def handleResponsePart(self, data):
-#        if self.first:
-#            self.first = False
-#            self.buffer = self.buffer + '\r\n'
+        if self.first:
+            self.first = False
+            self.buffer = self.buffer + '\r\n'
+            print self.buffer
 #        self.buffer = self.buffer + data
         proxy.ProxyClient.handleResponsePart(self,data)
         
