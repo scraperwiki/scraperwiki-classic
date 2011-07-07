@@ -7,6 +7,10 @@ from codewiki.models import Scraper
 # this command looks like a botch.  why isn't this data updated when it's run
 # Is this command ever invoked anyway
 
+# Have removed this from crontab on rush (live as of july 2011) as it was duplicating
+# functionality elsewhere and I believe causing data loss with long held objects that are 
+# updated through the webapp before being updated here.
+
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--short_name', '-s', dest='short_name',
