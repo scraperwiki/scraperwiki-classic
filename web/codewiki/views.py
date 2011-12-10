@@ -524,7 +524,7 @@ def scraper_undo_delete_data(request, short_name):
         pass
 
     send_message( request,{
-        "message": "Your data has been recovered",
+        "message": "Your data have been recovered",
         "level"  : "info",
         "actions":  [ ]
     })
@@ -548,7 +548,7 @@ def scraper_delete_data(request, short_name):
         pass
         
     send_message( request, {
-        "message": "Your data has been deleted",
+        "message": "Your data have been deleted",
         "level"  : "warning",
         "actions": 
             [ 
