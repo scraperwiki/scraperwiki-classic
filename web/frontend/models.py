@@ -49,7 +49,7 @@ class UserProfile(models.Model):
     apikey           = models.CharField(max_length=64, null=True, blank=True)
     
     features         = models.ManyToManyField( "Feature", related_name='features', null=True, blank=True )
-    
+    ssh_public_key   = models.TextField(blank=True, null=True)     
     # If someone comments on an item this user owns, this specifies whether they 
     # should receive the email
     email_on_comments = models.BooleanField( default=False )
