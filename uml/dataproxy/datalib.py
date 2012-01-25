@@ -19,10 +19,7 @@ import traceback
 
 import logging
 import logging.config
-try:
-    import cloghandler
-except:
-    pass
+from sqlite_functions import distance_on_spherical_earth
 
 try:
     import json
@@ -42,7 +39,7 @@ def authorizer_readonly(action_code, tname, cname, sql_location, trigger):
         return sqlite3.SQLITE_OK
 
     if action_code == sqlite3.SQLITE_PRAGMA:
-        if tname in ["table_info", "index_list", "index_info", "page_size"]:
+        if tname in ["table_info", "index_list", "index_info", "page_size", "synchronous"]:
             return sqlite3.SQLITE_OK
 
     # SQLite FTS (full text search) requires this permission even when reading, and
@@ -208,11 +205,14 @@ class SQLiteDatabase(Database):
             else:
                 self.m_sqlitedbconn = sqlite3.connect(":memory:", check_same_thread=False)   # draft scrapers make a local version
             self.m_sqlitedbconn.set_authorizer(authorizer_all)
+            self.m_sqlitedbconn.create_function('distance', 4, distance_on_spherical_earth)
+            
 #            try:
 #                self.m_sqlitedbconn.set_progress_handler(progress_handler, 1000000)  # can be order of 0.4secs 
 #            except AttributeError:
 #                pass  # must be python version 2.6
             self.m_sqlitedbcursor = self.m_sqlitedbconn.cursor()
+            self.m_sqlitedbcursor.execute("pragma synchronous=0") # reduce fsyncs to reduce load, we don't need that level of integrity - OS will flush fairly often anyway
              
         return True
                 

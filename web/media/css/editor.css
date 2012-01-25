@@ -349,7 +349,7 @@ span.hiddenfields {
 .editor_output div.tabs ul li {
 	float: left;
 	list-style-type: none;
-	padding: 0.3em 0.8em;
+	padding: 0;
 	margin: 0 0.3em;
 	border: solid 1px #9a9a9a;
 	border-bottom: none;
@@ -372,8 +372,26 @@ span.hiddenfields {
 }
 
 .editor_output div.tabs ul li a {
+	display: block;
+	padding: 0.3em 0.8em;
 	text-decoration: none;
 	color: #000;
+}
+
+.editor_output .tabs .unread {
+	font-family: Verdana;
+	font-size: 9px;
+	color: #fff;
+	background-color: #329e32;
+	text-shadow: 0 1px 0 green;
+	padding: 1px 5px 2px 5px;
+	margin-left: 5px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
+	display: none;
+	position: relative;
+	top: -1px;
 }
 
 .editor_output div.controls {
