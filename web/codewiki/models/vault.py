@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 from frontend.models import UserProfile
+from codewiki.models.scraper import Scraper, ScraperRunEvent
+from codewiki.models import UserCodeRole, Code        
 
 PLAN_PAGE_REQUESTS = {
     'individual':       20000,
@@ -25,7 +27,6 @@ class Vault(models.Model):
     members = models.ManyToManyField(User, related_name='vault_membership')
 
     def get_code_objects(self):
-        from codewiki.models import UserCodeRole, Code                
         return Code.objects.filter(vault=self).exclude(privacy_status='deleted')
 
     def add_user_rights(self, user ):
@@ -33,7 +34,6 @@ class Vault(models.Model):
         A new user has been added to the vault, make sure they can access all of 
         the code objects.
         """
-        from codewiki.models import UserCodeRole, Code        
         role = 'editor'
         if user == self.user:
             role = 'owner'
@@ -46,7 +46,6 @@ class Vault(models.Model):
         A user has been removed from the vault, make sure they can access none of 
         the code objects.
         """
-        from codewiki.models import UserCodeRole, Code                
         for code_object in self.get_code_objects():
             UserCodeRole.objects.filter(code=code_object, user=user).all().delete()
         
@@ -105,6 +104,22 @@ class Vault(models.Model):
         """
         return PLAN_PAGE_REQUESTS[self.plan]
 
+    def exceptions_that_have_not_been_notified(self):
+        # runevents have a notified flag
+        # scrapers that are: in a vault; with an exception; that have not been notified
+        # SELECT id from 
+        l = []
+        for scraper in Scraper.objects.filter(vault=self):
+            runevents = ScraperRunEvent.objects.filter(scraper=scraper)\
+                .order_by('-run_started')[:1]
+            if not runevents:
+                continue
+            mostrecent = runevents[0]
+            if mostrecent.exception_message and\
+                not mostrecent.has_exception_been_reported:
+                l.append(mostrecent)
+        return l
+
         
     def __unicode__(self):
         return "%s' %s vault (created on %s)" % (self.user.username, self.plan, self.name)
@@ -112,7 +127,6 @@ class Vault(models.Model):
     class Meta:
         app_label = 'codewiki'
         ordering = ['-name']
-
 
 class VaultRecord(models.Model):
     """

@@ -23,8 +23,8 @@ from codewiki.managers.datastore import DataStore
 
 import codewiki.util
 import codewiki.vc
-import code
-import view
+from codewiki.models.code import Code
+# import view #I don't think we need this here.
 import urllib2
 
 import logging
@@ -67,7 +67,7 @@ def scrapers_overdue():
     return scrapers
 
 
-class Scraper (code.Code):
+class Scraper (Code):
     last_run     = models.DateTimeField(blank=True, null=True)    
     record_count = models.IntegerField(default=0)        
     # In seconds; default to disabled.
@@ -157,6 +157,9 @@ class ScraperRunEvent(models.Model):
     first_url_scraped = models.CharField(max_length=256, blank=True, null=True)
     exception_message = models.CharField(max_length=256, blank=True, null=True)
     revision          = models.CharField(max_length=64, blank=True, null=True)    
+
+    # Has the exception been reported in an email?
+    has_exception_been_reported = models.BooleanField()
 
     def __unicode__(self):
         res = [u'start: %s' % self.run_started]

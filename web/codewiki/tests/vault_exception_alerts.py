@@ -7,23 +7,6 @@ from django.contrib.auth.models import User
 from codewiki.models.scraper import Scraper, ScraperRunEvent
 from codewiki.models.vault import Vault
 
-def select_exceptions_that_have_not_been_notified():
-    # runevents will have a notified flag (not added yet)
-    # scrapers that are: in a vault; with an exception; that have not been notified
-    # SELECT id from 
-    l = []
-    for vault in Vault.objects.all():
-        for scraper in Scraper.objects.filter(vault=vault):
-            runevents = ScraperRunEvent.objects.filter(scraper=scraper)\
-                .order_by('-run_started')[:1]
-            print runevents
-            if not runevents:
-                continue
-            mostrecent = runevents[0]
-            if mostrecent.exception_message:
-                l.append(mostrecent)
-    return l
-
 class TestExceptions(TestCase):
     "Test that we can find exceptions"
 
@@ -68,6 +51,10 @@ class TestExceptions(TestCase):
         )
 
     def test_daily_exception_count(self):
-        observed_count = len(select_exceptions_that_have_not_been_notified())
+        # This is okay because dcamerone should only have one vault.
+        user = User.objects.get(username='dcameron')
+        vault = Vault.objects.get(user=user)
+
+        observed_count = len(vault.exceptions_that_have_not_been_notified())
         expected_count = 1
         self.assertEqual(observed_count, expected_count)
