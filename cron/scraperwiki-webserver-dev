@@ -8,9 +8,8 @@ SHELL=/bin/bash
 0 4 * * * root /var/www/scraperwiki/cron/bin/mysql-backup dev
 
 # Run screenshooters locally
-0 */8 * * * scraperdeploy cd /var/www/scraperwiki/ && source bin/activate && cd web &&  xvfb-run --auto-servernum --server-args="-screen 0, 1440x900x24" python manage.py take_screenshot --verbose --url_prefix=https://devviews.scraperwiki.com --run_scrapers > /var/log/scraperwiki/screenshooter-scrapers.txt
-0 */8 * * * scraperdeploy cd /var/www/scraperwiki/ && source bin/activate && cd web &&  xvfb-run --auto-servernum --server-args="-screen 0, 1440x900x24" python manage.py take_screenshot --verbose --url_prefix=https://devviews.scraperwiki.com --run_views > /var/log/scraperwiki/screenshooter-views.txt
-
+0 */8 * * * scraperdeploy /var/www/scraperwiki/cron/bin/screenshooter1
+0 */8 * * * scraperdeploy /var/www/scraperwiki/cron/bin/screenshooter2
 
 # Send alerts to people about broken scrapers in their vaults.
 42 1 * * * scraperdeploy /var/www/scraperwiki/cron/bin/exception_alerts
