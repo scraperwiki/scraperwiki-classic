@@ -76,9 +76,13 @@ def profile_detail(request, username):
     profile = profiled_user.get_profile()
     
     extra_context = {
-                     'owned_code_objects' : profile.owned_code_objects(user),
-                     'emailer_code_objects' : profile.emailer_code_objects(username, user)
-                    }
+        'owned_code_objects' : profile.owned_code_objects(user),
+        'emailer_code_objects' : profile.emailer_code_objects(username, user),
+    }
+
+    if user.is_staff or profile.plan in ['individual', 'business', 'corporate']:
+        extra_context['cobalt_api_key'] = profile.apikey
+
     return profile_views.profile_detail(request, username=username, extra_context=extra_context)
 
 def redirect_dashboard_to_profile(request):

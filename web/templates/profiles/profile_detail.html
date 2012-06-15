@@ -9,6 +9,9 @@
 	<h2>{% show_gravatar profile.user 'medium' %} <em>Profiles</em> / <a href="{% url profile profile.user.username %}">{{profile.display_name}}</a></h2>
 	{% ifequal profile.user user %}
 	<p><a href="{% url profiles_edit_profile %}" onClick="if(typeof _gaq !== 'undefined'){ _gaq.push(['_trackEvent', 'Profile buttons', 'Edit profile']); }">Edit Profile &amp; Settings</a></p>
+        {% if cobalt_api_key %}
+	<label for="cobalt-api-key">Cobalt API key</label> <input name="cobalt-api-key" type="text" value="{{ cobalt_api_key }}">
+        {% endif %}
 	{% else %}
 	{% if request.user.is_authenticated and profile.messages and request.user.get_profile.messages %}
     <p><a href="{% url user_message profile.user.username %}" id="compose_user_message" onClick="if(typeof _gaq !== 'undefined'){ _gaq.push(['_trackEvent', 'Profile buttons', 'Send message']); }"><img src="{{ MEDIA_URL }}images/icons/email.png" width="16" height="16" alt="" /> Send a private message</a></p>
